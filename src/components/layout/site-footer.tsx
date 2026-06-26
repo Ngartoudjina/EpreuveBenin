@@ -3,6 +3,7 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Image from "next/image";
 import Link from "next/link";
 import { useRef } from "react";
 
@@ -199,8 +200,14 @@ export function SiteFooter() {
         <div className="grid gap-10 pt-10 lg:grid-cols-12">
           <div data-foot className="lg:col-span-5">
             <div className="flex items-center gap-2.5">
-              <span className="grid h-10 w-10 place-items-center rounded-xl bg-brand-600 text-lg font-bold text-white">
-                {siteConfig.name.charAt(0)}
+              <span className="grid h-10 w-10 place-items-center overflow-hidden rounded-xl bg-white">
+                <Image
+                  src="/hero/logo.png"
+                  alt=""
+                  width={40}
+                  height={40}
+                  className="h-full w-full scale-[1.7] object-contain"
+                />
               </span>
               <span className="leading-tight">
                 <span className="block text-lg font-bold text-white">

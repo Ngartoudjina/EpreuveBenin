@@ -3,6 +3,7 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { signOut, useSession } from "next-auth/react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -29,9 +30,26 @@ const menu = [
   { label: "À propos", href: "/a-propos", sub: "Le projet EpreuveBenin", Icon: HomeIcon },
 ];
 
+/** Logo (toque) sur fond clair. */
+function Logo({ className = "" }: { className?: string }) {
+  return (
+    <span className={`grid shrink-0 place-items-center overflow-hidden ${className}`}>
+      <Image
+        src="/hero/logo.png"
+        alt=""
+        width={48}
+        height={48}
+        priority
+        className="h-full w-full scale-[1.7] object-contain"
+      />
+    </span>
+  );
+}
+
 export function SiteHeader() {
   const pathname = usePathname();
   const headerRef = useRef<HTMLElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLDivElement>(null);
   const indicatorRef = useRef<HTMLSpanElement>(null);
   const ctaRef = useRef<HTMLAnchorElement>(null);
@@ -98,10 +116,12 @@ export function SiteHeader() {
         });
 
         // Masquage fluide au défilement vers le bas, réapparition vers le haut.
-        const header = headerRef.current;
-        if (header) {
-          gsap.set(header, { willChange: "transform" });
-          const yTo = gsap.quickTo(header, "yPercent", {
+        // IMPORTANT : on transforme la BARRE (pas le <header>), pour que
+        // l'overlay `fixed` reste calé sur la fenêtre et non sur la barre.
+        const bar = barRef.current;
+        if (bar) {
+          gsap.set(bar, { willChange: "transform" });
+          const yTo = gsap.quickTo(bar, "yPercent", {
             duration: 0.55,
             ease: "power2.out",
           });
@@ -109,7 +129,7 @@ export function SiteHeader() {
           const onScroll = () => {
             if (openRef.current) return; // jamais masquer quand le menu est ouvert
             const y = window.scrollY;
-            if (y > 120 && y > last + 4) yTo(-140);
+            if (y > 120 && y > last + 4) yTo(-160);
             else if (y < last - 4 || y < 80) yTo(0);
             last = y;
           };
@@ -214,18 +234,20 @@ export function SiteHeader() {
 
   return (
     <header ref={headerRef} className="sticky top-0 z-50 px-4 pt-3 sm:pt-4">
-      <div className="relative mx-auto flex max-w-6xl items-center justify-between gap-3">
+      {/* Barre (transformée au scroll) — au-dessus de l'overlay (z-40 > z-30) */}
+      <div
+        ref={barRef}
+        className="relative z-40 mx-auto flex max-w-6xl items-center justify-between gap-3"
+      >
         {/* Pilule logo */}
         <Link
           href="/"
           data-navpill
           aria-label={`${siteConfig.name} — accueil`}
           onClick={() => setOpen(false)}
-          className="relative z-40 flex items-center gap-2 rounded-full bg-white py-3 pl-3 pr-5 shadow-lift ring-1 ring-black/[0.03]"
+          className="flex items-center gap-2 rounded-full bg-white py-2.5 pl-2.5 pr-5 shadow-lift ring-1 ring-black/[0.03]"
         >
-          <span className="grid h-8 w-8 place-items-center rounded-full bg-brand-600 text-sm font-bold text-white">
-            {siteConfig.name.charAt(0)}
-          </span>
+          <Logo className="h-9 w-9" />
           <span className="text-sm font-extrabold uppercase tracking-wide text-foreground">
             {siteConfig.name}
           </span>
@@ -234,7 +256,7 @@ export function SiteHeader() {
         {/* Pilule navigation (desktop) */}
         <nav
           data-navpill
-          className="relative z-40 hidden items-center gap-1 rounded-full bg-white py-2 pl-5 pr-2 shadow-lift ring-1 ring-black/[0.03] lg:flex"
+          className="hidden items-center gap-1 rounded-full bg-white py-2 pl-5 pr-2 shadow-lift ring-1 ring-black/[0.03] lg:flex"
         >
           <div
             ref={navRef}
@@ -315,7 +337,7 @@ export function SiteHeader() {
           aria-expanded={open}
           aria-controls="menu-mobile"
           aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
-          className="relative z-40 grid h-12 w-12 place-items-center rounded-full bg-white text-foreground shadow-lift ring-1 ring-black/[0.03] lg:hidden"
+          className="grid h-12 w-12 place-items-center rounded-full bg-white text-foreground shadow-lift ring-1 ring-black/[0.03] lg:hidden"
         >
           <span className="relative block h-4 w-5">
             <span className={`absolute left-0 h-0.5 w-5 rounded-full bg-current transition-all duration-300 ${open ? "top-1/2 -translate-y-1/2 rotate-45" : "top-0"}`} />
@@ -323,122 +345,122 @@ export function SiteHeader() {
             <span className={`absolute left-0 h-0.5 w-5 rounded-full bg-current transition-all duration-300 ${open ? "bottom-1/2 translate-y-1/2 -rotate-45" : "bottom-0"}`} />
           </span>
         </button>
+      </div>
 
-        {/* Overlay mobile plein écran (glassmorphique) — display:contents pour ne
-            pas perturber le flux flex de la barre. */}
-        <div className="contents lg:hidden">
-          <div
-            id="menu-mobile"
-            ref={panelRef}
-            onClick={(e) => {
-              if (e.target === e.currentTarget) setOpen(false);
-            }}
-            className="invisible fixed inset-0 z-30 overflow-y-auto bg-white/85 px-4 pb-10 pt-24 opacity-0 backdrop-blur-2xl"
-          >
-            <nav aria-label="Menu" className="mx-auto w-full max-w-md space-y-1.5">
-              {menu.map((item) => {
-                const active = isActive(item.href);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    data-menu-item
-                    onClick={() => setOpen(false)}
-                    aria-current={active ? "page" : undefined}
-                    className={`flex items-center gap-3 rounded-2xl px-3 py-3 transition-colors ${active ? "bg-brand-50" : "bg-white/60 hover:bg-white"}`}
-                  >
-                    <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${active ? "bg-brand-600 text-white" : "bg-surface-2 text-brand-700"}`}>
-                      <item.Icon className="h-5 w-5" />
-                    </span>
-                    <span className="flex-1">
-                      <span className={`block font-semibold ${active ? "text-brand-700" : "text-foreground"}`}>
-                        {item.label}
-                      </span>
-                      <span className="block text-xs text-muted">{item.sub}</span>
-                    </span>
-                    <ArrowRightIcon className="h-4 w-4 text-muted" />
-                  </Link>
-                );
-              })}
-
-              {/* Compte */}
-              {user ? (
-                <>
-                  {isAdmin && (
-                    <Link
-                      href="/admin"
-                      data-menu-item
-                      onClick={() => setOpen(false)}
-                      className="flex items-center gap-3 rounded-2xl bg-brand-50 px-3 py-3 transition-colors hover:bg-brand-100"
-                    >
-                      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-600 text-white">
-                        <HomeIcon className="h-5 w-5" />
-                      </span>
-                      <span className="flex-1">
-                        <span className="block font-semibold text-brand-700">
-                          Tableau de bord
-                        </span>
-                        <span className="block text-xs text-muted">
-                          Espace administration
-                        </span>
-                      </span>
-                      <ArrowRightIcon className="h-4 w-4 text-brand-700" />
-                    </Link>
-                  )}
-                  <button
-                    type="button"
-                    data-menu-item
-                    onClick={() => {
-                      setOpen(false);
-                      signOut({ callbackUrl: "/" });
-                    }}
-                    className="flex w-full items-center gap-3 rounded-2xl bg-white/60 px-3 py-3 text-left transition-colors hover:bg-white"
-                  >
-                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-600 text-sm font-bold text-white">
-                      {firstName.charAt(0).toUpperCase()}
-                    </span>
-                    <span className="flex-1">
-                      <span className="block font-semibold text-foreground">
-                        {firstName}
-                      </span>
-                      <span className="block text-xs text-muted">Se déconnecter</span>
-                    </span>
-                  </button>
-                </>
-              ) : (
+      {/* Overlay mobile plein écran (glassmorphique) — hors de la barre
+          transformée, donc `fixed` calé sur la fenêtre. z-30 < barre z-40. */}
+      <div className="lg:hidden">
+        <div
+          id="menu-mobile"
+          ref={panelRef}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setOpen(false);
+          }}
+          className="invisible fixed inset-0 z-30 overflow-y-auto bg-white/85 px-4 pb-10 pt-24 opacity-0 backdrop-blur-2xl"
+        >
+          <nav aria-label="Menu" className="mx-auto w-full max-w-md space-y-1.5">
+            {menu.map((item) => {
+              const active = isActive(item.href);
+              return (
                 <Link
-                  href="/connexion"
+                  key={item.href}
+                  href={item.href}
                   data-menu-item
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 rounded-2xl bg-white/60 px-3 py-3 transition-colors hover:bg-white"
+                  aria-current={active ? "page" : undefined}
+                  className={`flex items-center gap-3 rounded-2xl px-3 py-3 transition-colors ${active ? "bg-brand-50" : "bg-white/60 hover:bg-white"}`}
                 >
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-surface-2 text-brand-700">
-                    <UserIcon className="h-5 w-5" />
+                  <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${active ? "bg-brand-600 text-white" : "bg-surface-2 text-brand-700"}`}>
+                    <item.Icon className="h-5 w-5" />
                   </span>
                   <span className="flex-1">
-                    <span className="block font-semibold text-foreground">
-                      Connexion
+                    <span className={`block font-semibold ${active ? "text-brand-700" : "text-foreground"}`}>
+                      {item.label}
                     </span>
-                    <span className="block text-xs text-muted">
-                      Accéder à mon compte
-                    </span>
+                    <span className="block text-xs text-muted">{item.sub}</span>
                   </span>
                   <ArrowRightIcon className="h-4 w-4 text-muted" />
                 </Link>
-              )}
+              );
+            })}
 
-              <div data-menu-item className="pt-2">
-                <Link
-                  href="/recherche"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand-500 to-brand-700 px-4 py-3.5 font-semibold text-white shadow-soft"
+            {/* Compte */}
+            {user ? (
+              <>
+                {isAdmin && (
+                  <Link
+                    href="/admin"
+                    data-menu-item
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-3 rounded-2xl bg-brand-50 px-3 py-3 transition-colors hover:bg-brand-100"
+                  >
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-600 text-white">
+                      <HomeIcon className="h-5 w-5" />
+                    </span>
+                    <span className="flex-1">
+                      <span className="block font-semibold text-brand-700">
+                        Tableau de bord
+                      </span>
+                      <span className="block text-xs text-muted">
+                        Espace administration
+                      </span>
+                    </span>
+                    <ArrowRightIcon className="h-4 w-4 text-brand-700" />
+                  </Link>
+                )}
+                <button
+                  type="button"
+                  data-menu-item
+                  onClick={() => {
+                    setOpen(false);
+                    signOut({ callbackUrl: "/" });
+                  }}
+                  className="flex w-full items-center gap-3 rounded-2xl bg-white/60 px-3 py-3 text-left transition-colors hover:bg-white"
                 >
-                  <SearchIcon className="h-4 w-4" />
-                  Rechercher une épreuve
-                </Link>
-              </div>
-            </nav>
-          </div>
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-600 text-sm font-bold text-white">
+                    {firstName.charAt(0).toUpperCase()}
+                  </span>
+                  <span className="flex-1">
+                    <span className="block font-semibold text-foreground">
+                      {firstName}
+                    </span>
+                    <span className="block text-xs text-muted">Se déconnecter</span>
+                  </span>
+                </button>
+              </>
+            ) : (
+              <Link
+                href="/connexion"
+                data-menu-item
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 rounded-2xl bg-white/60 px-3 py-3 transition-colors hover:bg-white"
+              >
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-surface-2 text-brand-700">
+                  <UserIcon className="h-5 w-5" />
+                </span>
+                <span className="flex-1">
+                  <span className="block font-semibold text-foreground">
+                    Connexion
+                  </span>
+                  <span className="block text-xs text-muted">
+                    Accéder à mon compte
+                  </span>
+                </span>
+                <ArrowRightIcon className="h-4 w-4 text-muted" />
+              </Link>
+            )}
+
+            <div data-menu-item className="pt-2">
+              <Link
+                href="/recherche"
+                onClick={() => setOpen(false)}
+                className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand-500 to-brand-700 px-4 py-3.5 font-semibold text-white shadow-soft"
+              >
+                <SearchIcon className="h-4 w-4" />
+                Rechercher une épreuve
+              </Link>
+            </div>
+          </nav>
         </div>
       </div>
     </header>

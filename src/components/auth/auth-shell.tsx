@@ -62,8 +62,14 @@ export function AuthShell({
               href="/"
               className="auth-overlay absolute left-7 top-7 flex items-center gap-2"
             >
-              <span className="grid h-9 w-9 place-items-center rounded-xl bg-white font-bold text-brand-700">
-                {siteConfig.name.charAt(0)}
+              <span className="grid h-9 w-9 place-items-center overflow-hidden rounded-xl bg-white">
+                <Image
+                  src="/hero/logo.png"
+                  alt=""
+                  width={36}
+                  height={36}
+                  className="h-full w-full scale-[1.7] object-contain"
+                />
               </span>
               <span className="font-bold text-white">{siteConfig.name}</span>
             </Link>
@@ -90,8 +96,14 @@ export function AuthShell({
                 href="/"
                 className="auth-rise flex items-center gap-2 lg:invisible"
               >
-                <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand-600 text-sm font-bold text-white">
-                  {siteConfig.name.charAt(0)}
+                <span className="grid h-8 w-8 place-items-center overflow-hidden rounded-lg bg-white ring-1 ring-border">
+                  <Image
+                    src="/hero/logo.png"
+                    alt=""
+                    width={32}
+                    height={32}
+                    className="h-full w-full scale-[1.7] object-contain"
+                  />
                 </span>
                 <span className="font-bold text-foreground">
                   {siteConfig.name}
