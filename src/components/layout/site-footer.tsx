@@ -282,6 +282,12 @@ export function SiteFooter() {
             </a>
           </p>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <Link
+              href="/admin"
+              className="text-white/40 transition-colors hover:text-white/80"
+            >
+              Administration
+            </Link>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-3 py-1 text-xs font-medium text-white/70 ring-1 ring-white/10">
               <CheckIcon className="h-3.5 w-3.5 text-brand-400" /> 100 % gratuit
             </span>

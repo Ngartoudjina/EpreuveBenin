@@ -30,22 +30,6 @@ const menu = [
   { label: "À propos", href: "/a-propos", sub: "Le projet EpreuveBenin", Icon: HomeIcon },
 ];
 
-/** Logo (toque) sur fond clair. */
-function Logo({ className = "" }: { className?: string }) {
-  return (
-    <span className={`grid shrink-0 place-items-center overflow-hidden ${className}`}>
-      <Image
-        src="/hero/logo.png"
-        alt=""
-        width={48}
-        height={48}
-        priority
-        className="h-full w-full scale-[1.7] object-contain"
-      />
-    </span>
-  );
-}
-
 export function SiteHeader() {
   const pathname = usePathname();
   const headerRef = useRef<HTMLElement>(null);
@@ -245,11 +229,20 @@ export function SiteHeader() {
           data-navpill
           aria-label={`${siteConfig.name} — accueil`}
           onClick={() => setOpen(false)}
-          className="flex items-center gap-2 rounded-full bg-white py-2.5 pl-2.5 pr-5 shadow-lift ring-1 ring-black/[0.03]"
+          className="group flex items-center gap-2.5 rounded-full bg-white py-1.5 pl-1.5 pr-5 shadow-lift ring-1 ring-black/[0.03] transition-shadow duration-300 hover:shadow-xl"
         >
-          <Logo className="h-9 w-9" />
-          <span className="text-sm font-extrabold uppercase tracking-wide text-foreground">
-            {siteConfig.name}
+          <span className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-brand-50 to-brand-100/70 ring-1 ring-brand-100">
+            <Image
+              src="/hero/logo.png"
+              alt=""
+              width={40}
+              height={40}
+              priority
+              className="h-8 w-8 scale-[1.55] object-contain transition-transform duration-500 ease-out group-hover:rotate-[8deg] group-hover:scale-[1.7]"
+            />
+          </span>
+          <span className="text-[15px] font-bold leading-none tracking-tight text-foreground">
+            Epreuve<span className="text-brand-600">Benin</span>
           </span>
         </Link>
 
