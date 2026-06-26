@@ -168,9 +168,28 @@ export const users = pgTable("users", {
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   passwordHash: text("password_hash").notNull(),
+  // Date de vérification de l'adresse e-mail (null = non vérifiée).
+  emailVerified: timestamp("email_verified", { withTimezone: true }),
   lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
   ...timestamps,
 });
+
+/** Jetons de vérification d'e-mail (à usage unique, expirant). */
+export const verificationTokens = pgTable(
+  "verification_tokens",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    token: text("token").notNull().unique(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [index("verification_tokens_user_idx").on(t.userId)],
+);
 
 /** Compte d'administration du back-office. */
 export const admins = pgTable("admins", {
@@ -263,6 +282,7 @@ export type Document = typeof documents.$inferSelect;
 export type Admin = typeof admins.$inferSelect;
 export type User = typeof users.$inferSelect;
 export type AuditLog = typeof auditLogs.$inferSelect;
+export type VerificationToken = typeof verificationTokens.$inferSelect;
 
 export type NewExamPaper = typeof examPapers.$inferInsert;
 export type NewDocument = typeof documents.$inferInsert;

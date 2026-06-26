@@ -17,7 +17,7 @@ export function AuthShell({
   subtitle,
   topRight,
   footer,
-  image = "/hero/hero2.jpg",
+  image = "/hero/sign.jpg",
   children,
 }: {
   title: string;

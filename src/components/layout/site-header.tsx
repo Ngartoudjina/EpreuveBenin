@@ -36,15 +36,16 @@ export function SiteHeader() {
   const indicatorRef = useRef<HTMLSpanElement>(null);
   const ctaRef = useRef<HTMLAnchorElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
-  const backdropRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
+  const openRef = useRef(false);
 
   const [open, setOpen] = useState(false);
 
   const { data: session } = useSession();
   const user = session?.user;
   const firstName = user?.name?.split(" ")[0] ?? "Mon compte";
+  const isAdmin = user?.role === "admin" || user?.role === "super_admin";
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
@@ -96,15 +97,20 @@ export function SiteHeader() {
           stagger: 0.12,
         });
 
-        // Masquage au défilement vers le bas, réapparition vers le haut.
+        // Masquage fluide au défilement vers le bas, réapparition vers le haut.
         const header = headerRef.current;
         if (header) {
-          const yTo = gsap.quickTo(header, "yPercent", { duration: 0.4, ease: "power3" });
+          gsap.set(header, { willChange: "transform" });
+          const yTo = gsap.quickTo(header, "yPercent", {
+            duration: 0.55,
+            ease: "power2.out",
+          });
           let last = window.scrollY;
           const onScroll = () => {
+            if (openRef.current) return; // jamais masquer quand le menu est ouvert
             const y = window.scrollY;
-            if (y > 130 && y > last + 3) yTo(-135);
-            else if (y < last - 3 || y < 90) yTo(0);
+            if (y > 120 && y > last + 4) yTo(-140);
+            else if (y < last - 4 || y < 80) yTo(0);
             last = y;
           };
           window.addEventListener("scroll", onScroll, { passive: true });
@@ -112,7 +118,7 @@ export function SiteHeader() {
         }
       });
 
-      // CTA magnétique (desktop).
+      // CTA magnétique (desktop, pointeur fin).
       mm.add(
         "(prefers-reduced-motion: no-preference) and (pointer: fine)",
         () => {
@@ -138,15 +144,21 @@ export function SiteHeader() {
         },
       );
 
-      // Timeline du menu mobile.
-      if (panelRef.current && backdropRef.current) {
+      // Timeline de l'overlay mobile (plein écran glassmorphique).
+      if (panelRef.current) {
         const items = panelRef.current.querySelectorAll("[data-menu-item]");
         const tl = gsap.timeline({ paused: true });
-        tl.set([backdropRef.current, panelRef.current], { autoAlpha: 0 });
-        tl.set(items, { autoAlpha: 0, y: 14 });
-        tl.to(backdropRef.current, { autoAlpha: 1, duration: 0.25, ease: "power2.out" }, 0)
-          .to(panelRef.current, { autoAlpha: 1, y: 0, duration: 0.4, ease: "power3.out", startAt: { y: -12 } }, 0)
-          .to(items, { autoAlpha: 1, y: 0, duration: 0.4, stagger: 0.06, ease: "power3.out" }, 0.1);
+        tl.set(panelRef.current, { autoAlpha: 0 });
+        tl.set(items, { autoAlpha: 0, y: 18 });
+        tl.to(
+          panelRef.current,
+          { autoAlpha: 1, duration: 0.3, ease: "power2.out" },
+          0,
+        ).to(
+          items,
+          { autoAlpha: 1, y: 0, duration: 0.45, stagger: 0.06, ease: "power3.out" },
+          0.08,
+        );
         tlRef.current = tl;
       }
     },
@@ -155,22 +167,20 @@ export function SiteHeader() {
 
   /* ------------------------------- Menu mobile ------------------------------- */
   useEffect(() => {
+    openRef.current = open;
     const tl = tlRef.current;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (tl) {
       if (open) {
         if (reduce) tl.progress(1).pause();
         else tl.play();
-      } else {
-        if (reduce) tl.progress(0).pause();
-        else tl.reverse();
-      }
+      } else if (reduce) tl.progress(0).pause();
+      else tl.reverse();
     }
     if (!open) return;
 
-    // Verrou de défilement : on bloque le scroll tant que le menu est ouvert.
-    // overflow:hidden sur <html> (préserve l'en-tête sticky) + blocage du
-    // touchmove hors panneau (indispensable sur iOS Safari).
+    // Verrou de défilement : overflow:hidden sur <html> (préserve l'en-tête
+    // sticky) + blocage du touchmove hors panneau (indispensable iOS Safari).
     const html = document.documentElement;
     const previousOverflow = html.style.overflow;
     html.style.overflow = "hidden";
@@ -258,6 +268,14 @@ export function SiteHeader() {
 
           {user ? (
             <div className="ml-1 flex items-center gap-1">
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  className="rounded-full bg-brand-50 px-3 py-2 text-sm font-semibold text-brand-700 transition-colors hover:bg-brand-100"
+                >
+                  Tableau de bord
+                </Link>
+              )}
               <span className="hidden px-2 text-sm font-semibold text-foreground xl:inline">
                 {firstName}
               </span>
@@ -306,97 +324,121 @@ export function SiteHeader() {
           </span>
         </button>
 
-        {/* Panneau mobile (display:contents → n'est pas un élément flex) */}
+        {/* Overlay mobile plein écran (glassmorphique) — display:contents pour ne
+            pas perturber le flux flex de la barre. */}
         <div className="contents lg:hidden">
           <div
-            ref={backdropRef}
-            onClick={() => setOpen(false)}
-            aria-hidden
-            className="invisible fixed inset-0 z-20 bg-foreground/30 opacity-0 backdrop-blur-md"
-          />
-          <nav
             id="menu-mobile"
             ref={panelRef}
-            aria-label="Menu"
-            className="invisible absolute inset-x-0 top-full z-30 mt-2 rounded-3xl border border-white/60 bg-white/70 p-2 opacity-0 shadow-[0_24px_60px_-15px_rgba(28,20,16,0.35)] ring-1 ring-white/40 backdrop-blur-2xl"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setOpen(false);
+            }}
+            className="invisible fixed inset-0 z-30 overflow-y-auto bg-white/85 px-4 pb-10 pt-24 opacity-0 backdrop-blur-2xl"
           >
-            {menu.map((item) => {
-              const active = isActive(item.href);
-              return (
+            <nav aria-label="Menu" className="mx-auto w-full max-w-md space-y-1.5">
+              {menu.map((item) => {
+                const active = isActive(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    data-menu-item
+                    onClick={() => setOpen(false)}
+                    aria-current={active ? "page" : undefined}
+                    className={`flex items-center gap-3 rounded-2xl px-3 py-3 transition-colors ${active ? "bg-brand-50" : "bg-white/60 hover:bg-white"}`}
+                  >
+                    <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${active ? "bg-brand-600 text-white" : "bg-surface-2 text-brand-700"}`}>
+                      <item.Icon className="h-5 w-5" />
+                    </span>
+                    <span className="flex-1">
+                      <span className={`block font-semibold ${active ? "text-brand-700" : "text-foreground"}`}>
+                        {item.label}
+                      </span>
+                      <span className="block text-xs text-muted">{item.sub}</span>
+                    </span>
+                    <ArrowRightIcon className="h-4 w-4 text-muted" />
+                  </Link>
+                );
+              })}
+
+              {/* Compte */}
+              {user ? (
+                <>
+                  {isAdmin && (
+                    <Link
+                      href="/admin"
+                      data-menu-item
+                      onClick={() => setOpen(false)}
+                      className="flex items-center gap-3 rounded-2xl bg-brand-50 px-3 py-3 transition-colors hover:bg-brand-100"
+                    >
+                      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-600 text-white">
+                        <HomeIcon className="h-5 w-5" />
+                      </span>
+                      <span className="flex-1">
+                        <span className="block font-semibold text-brand-700">
+                          Tableau de bord
+                        </span>
+                        <span className="block text-xs text-muted">
+                          Espace administration
+                        </span>
+                      </span>
+                      <ArrowRightIcon className="h-4 w-4 text-brand-700" />
+                    </Link>
+                  )}
+                  <button
+                    type="button"
+                    data-menu-item
+                    onClick={() => {
+                      setOpen(false);
+                      signOut({ callbackUrl: "/" });
+                    }}
+                    className="flex w-full items-center gap-3 rounded-2xl bg-white/60 px-3 py-3 text-left transition-colors hover:bg-white"
+                  >
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-600 text-sm font-bold text-white">
+                      {firstName.charAt(0).toUpperCase()}
+                    </span>
+                    <span className="flex-1">
+                      <span className="block font-semibold text-foreground">
+                        {firstName}
+                      </span>
+                      <span className="block text-xs text-muted">Se déconnecter</span>
+                    </span>
+                  </button>
+                </>
+              ) : (
                 <Link
-                  key={item.href}
-                  href={item.href}
+                  href="/connexion"
                   data-menu-item
                   onClick={() => setOpen(false)}
-                  aria-current={active ? "page" : undefined}
-                  className={`flex items-center gap-3 rounded-2xl px-3 py-3 transition-colors ${active ? "bg-brand-50" : "hover:bg-surface"}`}
+                  className="flex items-center gap-3 rounded-2xl bg-white/60 px-3 py-3 transition-colors hover:bg-white"
                 >
-                  <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${active ? "bg-brand-600 text-white" : "bg-surface-2 text-brand-700"}`}>
-                    <item.Icon className="h-5 w-5" />
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-surface-2 text-brand-700">
+                    <UserIcon className="h-5 w-5" />
                   </span>
                   <span className="flex-1">
-                    <span className={`block font-semibold ${active ? "text-brand-700" : "text-foreground"}`}>
-                      {item.label}
+                    <span className="block font-semibold text-foreground">
+                      Connexion
                     </span>
-                    <span className="block text-xs text-muted">{item.sub}</span>
+                    <span className="block text-xs text-muted">
+                      Accéder à mon compte
+                    </span>
                   </span>
                   <ArrowRightIcon className="h-4 w-4 text-muted" />
                 </Link>
-              );
-            })}
-            {user ? (
-              <button
-                type="button"
-                data-menu-item
-                onClick={() => {
-                  setOpen(false);
-                  signOut({ callbackUrl: "/" });
-                }}
-                className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left transition-colors hover:bg-surface"
-              >
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-600 text-sm font-bold text-white">
-                  {firstName.charAt(0).toUpperCase()}
-                </span>
-                <span className="flex-1">
-                  <span className="block font-semibold text-foreground">
-                    {firstName}
-                  </span>
-                  <span className="block text-xs text-muted">Se déconnecter</span>
-                </span>
-              </button>
-            ) : (
-              <Link
-                href="/connexion"
-                data-menu-item
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-3 rounded-2xl px-3 py-3 transition-colors hover:bg-surface"
-              >
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-surface-2 text-brand-700">
-                  <UserIcon className="h-5 w-5" />
-                </span>
-                <span className="flex-1">
-                  <span className="block font-semibold text-foreground">
-                    Connexion
-                  </span>
-                  <span className="block text-xs text-muted">
-                    Accéder à mon compte
-                  </span>
-                </span>
-                <ArrowRightIcon className="h-4 w-4 text-muted" />
-              </Link>
-            )}
+              )}
 
-            <div className="mt-2 border-t border-border/70 p-1 pt-2">
-              <Link
-                href="/recherche"
-                onClick={() => setOpen(false)}
-                className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand-500 to-brand-700 px-4 py-3 font-semibold text-white"
-              >
-                <SearchIcon className="h-4 w-4" />
-                Rechercher une épreuve
-              </Link>
-            </div>
-          </nav>
+              <div data-menu-item className="pt-2">
+                <Link
+                  href="/recherche"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand-500 to-brand-700 px-4 py-3.5 font-semibold text-white shadow-soft"
+                >
+                  <SearchIcon className="h-4 w-4" />
+                  Rechercher une épreuve
+                </Link>
+              </div>
+            </nav>
+          </div>
         </div>
       </div>
     </header>
