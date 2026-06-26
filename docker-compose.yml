@@ -1,0 +1,24 @@
+# PostgreSQL local pour le développement.
+# Démarrer :  docker compose up -d
+# Arrêter  :  docker compose down   (ajouter -v pour effacer les données)
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: annales_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: annales
+      POSTGRES_PASSWORD: annales
+      POSTGRES_DB: annales
+    ports:
+      - "5432:5432"
+    volumes:
+      - annales_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U annales -d annales"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  annales_pgdata:

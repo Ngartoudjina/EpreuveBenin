@@ -1,0 +1,146 @@
+@import "tailwindcss";
+
+/* -------------------------------------------------------------------------- */
+/*  Design tokens — Tailwind CSS v4 (configuration « CSS-first » via @theme).  */
+/*  Identité : orange premium (marque) + blanc, sur des neutres chauds.        */
+/* -------------------------------------------------------------------------- */
+@theme {
+  --color-brand-50: #fff7ed;
+  --color-brand-100: #ffedd5;
+  --color-brand-200: #fed7aa;
+  --color-brand-300: #fdba74;
+  --color-brand-400: #fb923c;
+  --color-brand-500: #f97316;
+  --color-brand-600: #ea580c; /* orange premium — couleur primaire */
+  --color-brand-700: #c2410c;
+  --color-brand-800: #9a3412;
+  --color-brand-900: #7c2d12;
+
+  /* Accent = orange profond (badges pleins, contraste AA avec le blanc). */
+  --color-accent: #c2410c;
+  --color-accent-foreground: #ffffff;
+  /* Rouge réservé aux messages d'erreur (fonctionnel). */
+  --color-danger: #dc2626;
+  --color-danger-foreground: #ffffff;
+
+  --color-background: #ffffff;
+  --color-foreground: #1c1410;
+  --color-muted: #78706b;
+  --color-surface: #fdf8f4;
+  --color-surface-2: #f7efe8;
+  --color-border: #efe6dd;
+
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  --radius-card: 1rem;
+
+  --shadow-soft: 0 1px 2px rgba(28, 20, 16, 0.04), 0 8px 24px rgba(28, 20, 16, 0.06);
+  --shadow-lift: 0 2px 4px rgba(28, 20, 16, 0.05), 0 16px 40px rgba(124, 45, 18, 0.1);
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Styles de base                                                            */
+/* -------------------------------------------------------------------------- */
+@layer base {
+  html {
+    color-scheme: light;
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  ::selection {
+    background-color: var(--color-brand-200);
+    color: var(--color-brand-900);
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Utilitaires décoratifs                                                    */
+/* -------------------------------------------------------------------------- */
+@layer utilities {
+  /* Motif de points discret pour les fonds de section. */
+  .bg-dots {
+    background-image: radial-gradient(currentColor 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+
+  /* Filet orange — détail de marque (en-tête, pied de page, connexion). */
+  .brand-bar {
+    background: linear-gradient(
+      90deg,
+      var(--color-brand-500),
+      var(--color-brand-600),
+      var(--color-brand-700)
+    );
+  }
+}
+
+/* Reflet glissant pour la signature du pied de page. */
+@keyframes brand-shimmer {
+  to {
+    background-position: -200% center;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .animate-shimmer {
+    background-size: 200% auto;
+    animation: brand-shimmer 7s linear infinite;
+  }
+}
+
+/* Reflet qui balaie le bouton CTA au survol. */
+@layer utilities {
+  .cta-shine {
+    position: relative;
+    overflow: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cta-shine::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      120deg,
+      transparent 35%,
+      rgba(255, 255, 255, 0.5) 50%,
+      transparent 65%
+    );
+    transform: translateX(-160%);
+    transition: transform 0.7s ease;
+  }
+  .cta-shine:hover::after,
+  .cta-shine:focus-visible::after {
+    transform: translateX(160%);
+  }
+}
