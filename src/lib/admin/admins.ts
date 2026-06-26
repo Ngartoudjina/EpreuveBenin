@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { db } from "@/db";
 import { admins } from "@/db/schema";
-import { hashPassword } from "@/lib/password";
+import { hashPassword, verifyPassword } from "@/lib/password";
 
 export const createAdminSchema = z.object({
   name: z.string().trim().min(2, "Le nom est trop court.").max(80),
@@ -48,6 +48,40 @@ export async function createAdminAccount(raw: CreateAdminInput): Promise<void> {
     role: parsed.data.role,
     passwordHash: await hashPassword(parsed.data.password),
   });
+}
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, "Mot de passe actuel requis."),
+  newPassword: z
+    .string()
+    .min(8, "Le nouveau mot de passe doit faire au moins 8 caractères.")
+    .max(200),
+});
+
+/** Permet à un administrateur de changer son propre mot de passe. */
+export async function changeOwnPassword(
+  id: string,
+  currentPassword: string,
+  newPassword: string,
+): Promise<void> {
+  const parsed = changePasswordSchema.safeParse({
+    currentPassword,
+    newPassword,
+  });
+  if (!parsed.success) {
+    throw new Error(parsed.error.issues[0]?.message ?? "Données invalides.");
+  }
+
+  const [admin] = await db.select().from(admins).where(eq(admins.id, id));
+  if (!admin) throw new Error("Compte introuvable.");
+
+  const ok = await verifyPassword(currentPassword, admin.passwordHash);
+  if (!ok) throw new Error("Mot de passe actuel incorrect.");
+
+  await db
+    .update(admins)
+    .set({ passwordHash: await hashPassword(newPassword) })
+    .where(eq(admins.id, id));
 }
 
 /** Change le rôle d'un administrateur (protège le dernier super-admin). */

@@ -78,9 +78,12 @@ export default async function AdminLayout({
             </nav>
           </div>
           <div className="flex items-center gap-4 text-sm">
-            <span className="hidden text-muted sm:inline">
+            <Link
+              href="/admin/compte"
+              className="hidden text-muted transition-colors hover:text-foreground sm:inline"
+            >
               {session.user.email}
-            </span>
+            </Link>
             <form
               action={async () => {
                 "use server";
