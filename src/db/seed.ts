@@ -79,7 +79,21 @@ const EXAMPLE_PAPERS: {
   { examCode: "bac", seriesCode: "C", subjectCode: "PCT", year: 2023, withCorrige: false },
 ];
 
-export async function seedReferentials(db: AppDatabase): Promise<void> {
+export type SeedOptions = {
+  /** Insère des épreuves + documents d'exemple (true en dev, false en prod). */
+  withExamples?: boolean;
+  /**
+   * Compte super-administrateur à créer.
+   * `undefined` → admin de démonstration ; `null` → n'en crée aucun.
+   */
+  admin?: { name?: string; email: string; password: string } | null;
+};
+
+export async function seedReferentials(
+  db: AppDatabase,
+  opts: SeedOptions = {},
+): Promise<void> {
+  const withExamples = opts.withExamples ?? true;
   // 1. Examens
   await db
     .insert(exams)
@@ -117,8 +131,8 @@ export async function seedReferentials(db: AppDatabase): Promise<void> {
     allSessions.filter((s) => s.type === "normale").map((s) => [s.year, s]),
   );
 
-  // 5. Épreuves d'exemple + documents
-  for (const ex of EXAMPLE_PAPERS) {
+  // 5. Épreuves d'exemple + documents (développement uniquement)
+  for (const ex of withExamples ? EXAMPLE_PAPERS : []) {
     const exam = examByCode.get(ex.examCode);
     const subject = subjectByCode.get(ex.subjectCode);
     const session = sessionByYear.get(ex.year);
@@ -189,26 +203,51 @@ export async function seedReferentials(db: AppDatabase): Promise<void> {
       .onConflictDoNothing();
   }
 
-  // 6. Administrateur de démonstration
-  const existingAdmin = await db
-    .select()
-    .from(admins)
-    .where(eq(admins.email, DEMO_ADMIN.email));
-  if (existingAdmin.length === 0) {
-    await db.insert(admins).values({
-      name: DEMO_ADMIN.name,
-      email: DEMO_ADMIN.email,
-      role: "super_admin",
-      passwordHash: await hashPassword(DEMO_ADMIN.password),
-    });
+  // 6. Compte super-administrateur
+  const admin = opts.admin === undefined ? DEMO_ADMIN : opts.admin;
+  if (admin) {
+    const email = admin.email.toLowerCase();
+    const existingAdmin = await db
+      .select()
+      .from(admins)
+      .where(eq(admins.email, email));
+    if (existingAdmin.length === 0) {
+      await db.insert(admins).values({
+        name: admin.name ?? "Administrateur",
+        email,
+        role: "super_admin",
+        passwordHash: await hashPassword(admin.password),
+      });
+    }
   }
 }
 
 // Exécution directe : amorce via le client partagé (driver courant).
 async function runCli() {
+  const prod =
+    process.argv.includes("--prod") || process.env.SEED_PROD === "1";
   const { db } = await import("./index");
-  console.log("🌱  Amorçage de la base…");
-  await seedReferentials(db);
+
+  if (prod) {
+    const email = process.env.ADMIN_EMAIL;
+    const password = process.env.ADMIN_PASSWORD;
+    const admin =
+      email && password
+        ? { name: process.env.ADMIN_NAME, email, password }
+        : null;
+    console.log(
+      `🌱  Amorçage PRODUCTION (référentiels${admin ? " + admin" : ""}, sans épreuves d'exemple)…`,
+    );
+    await seedReferentials(db, { withExamples: false, admin });
+    if (!admin) {
+      console.log(
+        "ℹ️   ADMIN_EMAIL / ADMIN_PASSWORD absents → compte admin non créé.",
+      );
+    }
+  } else {
+    console.log("🌱  Amorçage (développement)…");
+    await seedReferentials(db);
+  }
   console.log("✅  Amorçage terminé.");
 }
 

@@ -14,6 +14,7 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx src/db/seed.ts",
+    "db:seed:prod": "tsx src/db/seed.ts --prod",
     "db:local": "tsx src/db/local-setup.ts"
   },
   "dependencies": {
