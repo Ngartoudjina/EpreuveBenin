@@ -14,7 +14,7 @@ import { absoluteUrl } from "@/lib/seo";
  * téléchargement n'est pas bloqué. Repasser à `true` réactive tout le flux
  * (la logique, la page /verifier-email et le module e-mail restent en place).
  */
-export const EMAIL_VERIFICATION_ENABLED = false;
+export const EMAIL_VERIFICATION_ENABLED = true;
 
 const TOKEN_TTL_MS = 24 * 60 * 60 * 1000; // 24 h
 

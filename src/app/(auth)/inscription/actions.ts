@@ -1,6 +1,7 @@
 "use server";
 
 import { AuthError } from "next-auth";
+import { redirect } from "next/navigation";
 
 import { signIn } from "@/auth";
 import {
@@ -34,27 +35,29 @@ export async function registerAction(
       : "Erreur lors de l'inscription.";
   }
 
-  // Vérification d'e-mail (désactivée pour le moment, cf. EMAIL_VERIFICATION_ENABLED).
-  if (EMAIL_VERIFICATION_ENABLED) {
+  // Vérification désactivée : connexion automatique (ancien comportement).
+  if (!EMAIL_VERIFICATION_ENABLED) {
     try {
-      await sendVerificationEmail({ id: created.id, name, email });
-    } catch {
-      // l'utilisateur pourra le renvoyer depuis la page de vérification
+      await signIn("visitor", { email, password, redirectTo: next });
+      return undefined;
+    } catch (error) {
+      if (error instanceof AuthError) {
+        return "Compte créé. Veuillez vous connecter.";
+      }
+      throw error;
     }
   }
 
-  // Connexion automatique après création du compte.
+  // Vérification activée : on envoie l'e-mail de confirmation, on NE connecte PAS
+  // automatiquement, et on redirige vers la page de connexion avec une
+  // notification invitant à vérifier la boîte de réception (et les spams).
   try {
-    await signIn("visitor", {
-      email,
-      password,
-      redirectTo: EMAIL_VERIFICATION_ENABLED ? "/verifier-email" : next,
-    });
-    return undefined;
-  } catch (error) {
-    if (error instanceof AuthError) {
-      return "Compte créé. Veuillez vous connecter.";
-    }
-    throw error;
+    await sendVerificationEmail({ id: created.id, name, email });
+  } catch {
+    // l'utilisateur pourra renvoyer l'e-mail depuis /verifier-email
   }
+
+  const params = new URLSearchParams({ verifier: "1" });
+  if (next !== "/") params.set("next", next);
+  redirect(`/connexion?${params.toString()}`);
 }

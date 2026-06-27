@@ -88,6 +88,7 @@ export default async function VisiteursPage({
               <tr className="border-b border-border text-left text-muted">
                 <th className="px-4 py-3 font-medium">Nom</th>
                 <th className="px-4 py-3 font-medium">E-mail</th>
+                <th className="px-4 py-3 font-medium">E-mail vérifié</th>
                 <th className="px-4 py-3 font-medium">Inscrit le</th>
                 <th className="px-4 py-3 font-medium">Dernière connexion</th>
               </tr>
@@ -99,6 +100,17 @@ export default async function VisiteursPage({
                     {u.name}
                   </td>
                   <td className="px-4 py-3 text-muted">{u.email}</td>
+                  <td className="px-4 py-3">
+                    {u.emailVerified ? (
+                      <span className="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700">
+                        Vérifié
+                      </span>
+                    ) : (
+                      <span className="rounded-full bg-surface px-2.5 py-1 text-xs font-medium text-muted">
+                        Non vérifié
+                      </span>
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-muted">
                     {dateFmt.format(u.createdAt)}
                   </td>

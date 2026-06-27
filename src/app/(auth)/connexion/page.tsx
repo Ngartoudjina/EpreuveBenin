@@ -21,8 +21,9 @@ function cleanNext(value: string | string[] | undefined): string {
 export default async function ConnexionPage({
   searchParams,
 }: PageProps<"/connexion">) {
-  const { next } = await searchParams;
+  const { next, verifier } = await searchParams;
   const nextPath = cleanNext(next);
+  const justRegistered = verifier === "1";
 
   const session = await auth();
   if (session?.user) redirect(nextPath);
@@ -49,6 +50,17 @@ export default async function ConnexionPage({
         </>
       }
     >
+      {justRegistered && (
+        <div className="mb-5 rounded-xl border border-brand-200 bg-brand-50 p-4 text-sm text-brand-900">
+          <p className="font-semibold text-brand-800">Compte créé avec succès ✅</p>
+          <p className="mt-1 leading-relaxed">
+            Un e-mail de confirmation vous a été envoyé. Ouvrez votre{" "}
+            <strong>boîte de réception</strong> (pensez à regarder dans les{" "}
+            <strong>spams / courriers indésirables</strong>) et cliquez sur le
+            lien pour <strong>vérifier votre adresse</strong>, puis connectez-vous.
+          </p>
+        </div>
+      )}
       <LoginForm next={nextPath} />
     </AuthShell>
   );

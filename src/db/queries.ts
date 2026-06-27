@@ -434,6 +434,7 @@ export async function listUsers(opts: {
     id: string;
     name: string;
     email: string;
+    emailVerified: Date | null;
     createdAt: Date;
     lastLoginAt: Date | null;
   }>
@@ -451,6 +452,7 @@ export async function listUsers(opts: {
         id: users.id,
         name: users.name,
         email: users.email,
+        emailVerified: users.emailVerified,
         createdAt: users.createdAt,
         lastLoginAt: users.lastLoginAt,
       })
