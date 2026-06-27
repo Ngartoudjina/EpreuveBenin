@@ -4,7 +4,10 @@ import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/db";
 import { documents } from "@/db/schema";
-import { isEmailVerified } from "@/lib/auth/verification";
+import {
+  EMAIL_VERIFICATION_ENABLED,
+  isEmailVerified,
+} from "@/lib/auth/verification";
 
 export const dynamic = "force-dynamic";
 
@@ -33,8 +36,9 @@ export async function GET(
     return NextResponse.redirect(url);
   }
 
-  // Les visiteurs doivent avoir confirmé leur e-mail (les admins en sont exemptés).
-  if (session.user.role === "visitor") {
+  // Vérification d'e-mail (désactivée pour le moment) : les visiteurs non
+  // confirmés sont redirigés uniquement si le flux est réactivé.
+  if (EMAIL_VERIFICATION_ENABLED && session.user.role === "visitor") {
     const verified = await isEmailVerified(session.user.id);
     if (!verified) {
       return NextResponse.redirect(new URL("/verifier-email", req.url));

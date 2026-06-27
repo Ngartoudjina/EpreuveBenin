@@ -8,6 +8,14 @@ import { sendEmail } from "@/lib/email";
 import { verificationEmail } from "@/lib/email/templates";
 import { absoluteUrl } from "@/lib/seo";
 
+/**
+ * Interrupteur global de la vérification d'e-mail.
+ * `false` = désactivée : inscription immédiate, aucun e-mail envoyé, et le
+ * téléchargement n'est pas bloqué. Repasser à `true` réactive tout le flux
+ * (la logique, la page /verifier-email et le module e-mail restent en place).
+ */
+export const EMAIL_VERIFICATION_ENABLED = false;
+
 const TOKEN_TTL_MS = 24 * 60 * 60 * 1000; // 24 h
 
 /** Crée un jeton (unique par utilisateur) et envoie l'e-mail de confirmation. */

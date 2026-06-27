@@ -3,15 +3,24 @@
 import { AuthError } from "next-auth";
 
 import { signIn } from "@/auth";
-import { sendVerificationEmail } from "@/lib/auth/verification";
+import {
+  EMAIL_VERIFICATION_ENABLED,
+  sendVerificationEmail,
+} from "@/lib/auth/verification";
 import { createUser } from "@/lib/users";
 
 type State = string | undefined;
+
+function safeNext(value: FormDataEntryValue | null): string {
+  const s = typeof value === "string" ? value : "";
+  return s.startsWith("/") && !s.startsWith("//") ? s : "/";
+}
 
 export async function registerAction(
   _prev: State,
   formData: FormData,
 ): Promise<State> {
+  const next = safeNext(formData.get("next"));
   const name = String(formData.get("name") ?? "");
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
@@ -25,19 +34,21 @@ export async function registerAction(
       : "Erreur lors de l'inscription.";
   }
 
-  // Envoi de l'e-mail de confirmation (sans bloquer l'inscription si échec).
-  try {
-    await sendVerificationEmail({ id: created.id, name, email });
-  } catch {
-    // l'utilisateur pourra le renvoyer depuis la page de vérification
+  // Vérification d'e-mail (désactivée pour le moment, cf. EMAIL_VERIFICATION_ENABLED).
+  if (EMAIL_VERIFICATION_ENABLED) {
+    try {
+      await sendVerificationEmail({ id: created.id, name, email });
+    } catch {
+      // l'utilisateur pourra le renvoyer depuis la page de vérification
+    }
   }
 
-  // Connexion automatique, puis redirection vers la page « vérifiez votre e-mail ».
+  // Connexion automatique après création du compte.
   try {
     await signIn("visitor", {
       email,
       password,
-      redirectTo: "/verifier-email",
+      redirectTo: EMAIL_VERIFICATION_ENABLED ? "/verifier-email" : next,
     });
     return undefined;
   } catch (error) {
