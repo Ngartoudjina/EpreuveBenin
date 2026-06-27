@@ -238,7 +238,7 @@ export function SiteHeader() {
               width={40}
               height={40}
               priority
-              className="h-8 w-8 scale-[1.55] object-contain transition-transform duration-500 ease-out group-hover:rotate-[8deg] group-hover:scale-[1.7]"
+              className="logo-tint h-8 w-8 scale-[1.55] object-contain transition-transform duration-500 ease-out group-hover:rotate-[8deg] group-hover:scale-[1.7]"
             />
           </span>
           <span className="text-[15px] font-bold leading-none tracking-tight text-foreground">

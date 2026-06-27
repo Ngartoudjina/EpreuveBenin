@@ -206,7 +206,7 @@ export function SiteFooter() {
                   alt=""
                   width={40}
                   height={40}
-                  className="h-full w-full scale-[1.7] object-contain"
+                  className="logo-tint h-full w-full scale-[1.7] object-contain"
                 />
               </span>
               <span className="leading-tight">

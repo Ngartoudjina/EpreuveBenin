@@ -5,19 +5,19 @@
 /*  Identité : orange premium (marque) + blanc, sur des neutres chauds.        */
 /* -------------------------------------------------------------------------- */
 @theme {
-  --color-brand-50: #fff7ed;
-  --color-brand-100: #ffedd5;
-  --color-brand-200: #fed7aa;
-  --color-brand-300: #fdba74;
-  --color-brand-400: #fb923c;
-  --color-brand-500: #f97316;
-  --color-brand-600: #ea580c; /* orange premium — couleur primaire */
-  --color-brand-700: #c2410c;
-  --color-brand-800: #9a3412;
-  --color-brand-900: #7c2d12;
+  --color-brand-50: #eef7f6;
+  --color-brand-100: #d3ebe8;
+  --color-brand-200: #a9d6d1;
+  --color-brand-300: #75bab3;
+  --color-brand-400: #459a92;
+  --color-brand-500: #2d827b;
+  --color-brand-600: #226d68; /* teal premium — couleur primaire */
+  --color-brand-700: #1d5854;
+  --color-brand-800: #194745;
+  --color-brand-900: #143b39;
 
-  /* Accent = orange profond (badges pleins, contraste AA avec le blanc). */
-  --color-accent: #c2410c;
+  /* Accent = teal profond (badges pleins, contraste AA avec le blanc). */
+  --color-accent: #1b5b57;
   --color-accent-foreground: #ffffff;
   /* Rouge réservé aux messages d'erreur (fonctionnel). */
   --color-danger: #dc2626;
@@ -39,7 +39,7 @@
   --radius-card: 1rem;
 
   --shadow-soft: 0 1px 2px rgba(28, 20, 16, 0.04), 0 8px 24px rgba(28, 20, 16, 0.06);
-  --shadow-lift: 0 2px 4px rgba(28, 20, 16, 0.05), 0 16px 40px rgba(124, 45, 18, 0.1);
+  --shadow-lift: 0 2px 4px rgba(28, 20, 16, 0.05), 0 16px 40px rgba(20, 59, 57, 0.14);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -92,7 +92,7 @@
     background-size: 22px 22px;
   }
 
-  /* Filet orange — détail de marque (en-tête, pied de page, connexion). */
+  /* Filet de marque (en-tête, pied de page, connexion). */
   .brand-bar {
     background: linear-gradient(
       90deg,
@@ -100,6 +100,12 @@
       var(--color-brand-600),
       var(--color-brand-700)
     );
+  }
+
+  /* Teinte le logo orange (image PNG) vers le teal de la marque.
+     Approximation — à remplacer par un logo teal natif pour un rendu exact. */
+  .logo-tint {
+    filter: hue-rotate(158deg) saturate(0.72) brightness(0.86);
   }
 }
 

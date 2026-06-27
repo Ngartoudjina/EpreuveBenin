@@ -68,7 +68,7 @@ export function AuthShell({
                   alt=""
                   width={36}
                   height={36}
-                  className="h-full w-full scale-[1.7] object-contain"
+                  className="logo-tint h-full w-full scale-[1.7] object-contain"
                 />
               </span>
               <span className="font-bold text-white">{siteConfig.name}</span>
@@ -102,7 +102,7 @@ export function AuthShell({
                     alt=""
                     width={32}
                     height={32}
-                    className="h-full w-full scale-[1.7] object-contain"
+                    className="logo-tint h-full w-full scale-[1.7] object-contain"
                   />
                 </span>
                 <span className="font-bold text-foreground">
