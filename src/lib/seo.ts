@@ -46,7 +46,7 @@ export function organizationJsonLd() {
     "@type": "EducationalOrganization",
     name: siteConfig.name,
     url: BASE,
-    logo: absoluteUrl("/favicon.ico"),
+    logo: absoluteUrl("/icon.svg"),
     description: siteConfig.description,
     areaServed: "BJ",
     sameAs: SOCIAL,
