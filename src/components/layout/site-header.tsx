@@ -231,14 +231,14 @@ export function SiteHeader() {
           onClick={() => setOpen(false)}
           className="group flex items-center gap-2.5 rounded-full bg-white py-1.5 pl-1.5 pr-5 shadow-lift ring-1 ring-black/[0.03] transition-shadow duration-300 hover:shadow-xl"
         >
-          <span className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-brand-50 to-brand-100/70 ring-1 ring-brand-100">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-brand-50 to-brand-100/70 ring-1 ring-brand-100">
             <Image
               src="/hero/logo.png"
               alt=""
-              width={40}
-              height={40}
+              width={28}
+              height={28}
               priority
-              className="logo-tint h-8 w-8 scale-[1.55] object-contain transition-transform duration-500 ease-out group-hover:rotate-[8deg] group-hover:scale-[1.7]"
+              className="logo-tint h-5 w-5 object-contain transition-transform duration-500 ease-out group-hover:rotate-[6deg] group-hover:scale-110"
             />
           </span>
           <span className="text-[15px] font-bold leading-none tracking-tight text-foreground">

@@ -200,13 +200,13 @@ export function SiteFooter() {
         <div className="grid gap-10 pt-10 lg:grid-cols-12">
           <div data-foot className="lg:col-span-5">
             <div className="flex items-center gap-2.5">
-              <span className="grid h-10 w-10 place-items-center overflow-hidden rounded-xl bg-white">
+              <span className="grid h-10 w-10 place-items-center rounded-xl bg-white">
                 <Image
                   src="/hero/logo.png"
                   alt=""
-                  width={40}
-                  height={40}
-                  className="logo-tint h-full w-full scale-[1.7] object-contain"
+                  width={28}
+                  height={28}
+                  className="logo-tint h-6 w-6 object-contain"
                 />
               </span>
               <span className="leading-tight">

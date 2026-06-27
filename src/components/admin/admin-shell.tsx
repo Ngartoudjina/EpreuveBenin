@@ -49,7 +49,7 @@ function Brand() {
           alt=""
           width={36}
           height={36}
-          className="logo-tint h-7 w-7 scale-[1.6] object-contain"
+          className="logo-tint h-5 w-5 object-contain"
         />
       </span>
       <span className="leading-tight">
