@@ -27,6 +27,7 @@ import { db } from "./index";
 import {
   admins,
   auditLogs,
+  contactMessages,
   documents,
   examPapers,
   examSessions,
@@ -513,6 +514,24 @@ export async function listAuditLogs(opts: {
     perPage,
     pages: Math.max(1, Math.ceil(total / perPage)),
   };
+}
+
+/** Messages de contact laissés par les visiteurs (back-office). */
+export async function listMessages(limit = 100) {
+  return db
+    .select()
+    .from(contactMessages)
+    .orderBy(desc(contactMessages.createdAt))
+    .limit(limit);
+}
+
+/** Nombre de messages non traités (badge de navigation). */
+export async function countUnhandledMessages(): Promise<number> {
+  const [row] = await db
+    .select({ n: sql<number>`count(*)::int` })
+    .from(contactMessages)
+    .where(eq(contactMessages.handled, false));
+  return row?.n ?? 0;
 }
 
 /** Statistiques du tableau de bord d'administration (A-06). */

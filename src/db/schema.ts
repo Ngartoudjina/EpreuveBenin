@@ -11,6 +11,7 @@
 import { relations, sql } from "drizzle-orm";
 import {
   bigint,
+  boolean,
   index,
   integer,
   pgEnum,
@@ -223,6 +224,22 @@ export const auditLogs = pgTable(
   (t) => [index("audit_logs_created_idx").on(t.createdAt)],
 );
 
+/** Messages laissés par les visiteurs (page À propos / contact). */
+export const contactMessages = pgTable(
+  "contact_messages",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    name: text("name").notNull(),
+    email: text("email").notNull(),
+    message: text("message").notNull(),
+    handled: boolean("handled").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [index("contact_messages_created_idx").on(t.createdAt)],
+);
+
 /* -------------------------------------------------------------------------- */
 /*                                 Relations                                  */
 /* -------------------------------------------------------------------------- */
@@ -283,6 +300,7 @@ export type Admin = typeof admins.$inferSelect;
 export type User = typeof users.$inferSelect;
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type VerificationToken = typeof verificationTokens.$inferSelect;
+export type ContactMessage = typeof contactMessages.$inferSelect;
 
 export type NewExamPaper = typeof examPapers.$inferInsert;
 export type NewDocument = typeof documents.$inferInsert;

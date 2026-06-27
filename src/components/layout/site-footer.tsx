@@ -5,7 +5,8 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import Link from "next/link";
-import { useRef } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
 
 import {
   ArrowRightIcon,
@@ -54,6 +55,15 @@ const socials = [
 export function SiteFooter() {
   const root = useRef<HTMLElement>(null);
   const year = new Date().getFullYear();
+  const pathname = usePathname();
+
+  // Le pied de page vit dans le layout persistant : à chaque navigation SPA,
+  // on recalcule les positions des ScrollTrigger (sinon, sur une page courte,
+  // l'animation d'apparition ne se déclenche pas tant qu'on n'a pas rafraîchi).
+  useEffect(() => {
+    const id = requestAnimationFrame(() => ScrollTrigger.refresh());
+    return () => cancelAnimationFrame(id);
+  }, [pathname]);
 
   useGSAP(
     () => {

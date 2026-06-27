@@ -14,6 +14,7 @@ import {
   FileIcon,
   GraduationIcon,
   HomeIcon,
+  MailIcon,
   SparkleIcon,
   UserIcon,
 } from "@/components/icons";
@@ -26,6 +27,7 @@ const NAV: Item[] = [
   { href: "/admin/import", label: "Import en masse", Icon: DownloadIcon },
   { href: "/admin/referentiels", label: "Référentiels", Icon: GraduationIcon },
   { href: "/admin/visiteurs", label: "Visiteurs", Icon: UserIcon },
+  { href: "/admin/messages", label: "Messages", Icon: MailIcon },
   { href: "/admin/journal", label: "Journal", Icon: BoltIcon },
 ];
 
