@@ -6,14 +6,22 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRef } from "react";
 
-import { ArrowRightIcon, BoltIcon, GiftIcon, SparkleIcon } from "@/components/icons";
+import {
+  ArrowRightIcon,
+  BoltIcon,
+  CheckIcon,
+  GiftIcon,
+  SearchIcon,
+  SparkleIcon,
+} from "@/components/icons";
 import { buttonVariants } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 
-const stats = [
-  { value: "100%", label: "Gratuit" },
-  { value: "BEPC·BAC", label: "Examens couverts" },
+const ticks = [
+  { value: "100 % gratuit", label: "Pour toujours" },
+  { value: "BEPC · BAC", label: "Examens couverts" },
   { value: "Hors-ligne", label: "Toujours accessible" },
+  { value: "Sujets & corrigés", label: "Officiels" },
 ];
 
 export function Hero() {
@@ -127,7 +135,47 @@ export function Hero() {
             corrigés — à télécharger gratuitement, même en connexion limitée.
           </p>
 
-          <div className="hero-rise mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row">
+          {/* Recherche rapide : envoie vers /recherche (filtrage instantané). */}
+          <form
+            action="/recherche"
+            method="get"
+            role="search"
+            className="hero-rise mt-6 flex items-center gap-1.5 rounded-2xl border border-border bg-background p-1.5 shadow-soft sm:mt-7 sm:gap-2 sm:p-2"
+          >
+            <label htmlFor="hero-q" className="sr-only">
+              Rechercher une épreuve
+            </label>
+            <input
+              id="hero-q"
+              name="q"
+              type="search"
+              placeholder="Épreuve, matière, année…"
+              autoComplete="off"
+              className="h-10 w-full min-w-0 flex-1 bg-transparent px-2.5 text-sm text-foreground placeholder:text-muted focus-visible:outline-none sm:px-3 sm:text-base"
+            />
+            <label htmlFor="hero-examen" className="sr-only">
+              Examen
+            </label>
+            <select
+              id="hero-examen"
+              name="examen"
+              defaultValue=""
+              className="hidden h-10 shrink-0 border-l border-border bg-transparent pl-3 pr-1 text-sm font-medium text-foreground focus-visible:outline-none sm:block"
+            >
+              <option value="">Tous les examens</option>
+              <option value="bepc">BEPC</option>
+              <option value="bac">BAC</option>
+            </select>
+            <button
+              type="submit"
+              aria-label="Rechercher"
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-600 text-white transition-colors hover:bg-brand-700"
+            >
+              <SearchIcon className="h-5 w-5" />
+            </button>
+          </form>
+
+          <div className="hero-rise mt-5 flex flex-col gap-3 sm:mt-6 sm:flex-row">
             <Link
               href="/bac"
               className={buttonVariants({
@@ -151,16 +199,23 @@ export function Hero() {
             </Link>
           </div>
 
-          <div className="hero-rise mt-8 flex items-center gap-5 sm:mt-10 sm:gap-6">
-            {stats.map((s, i) => (
+          <div className="hero-rise mt-7 grid grid-cols-2 gap-x-5 gap-y-4 sm:mt-9 sm:flex sm:items-center sm:gap-6">
+            {ticks.map((s, i) => (
               <div
                 key={s.label}
-                className={i > 0 ? "border-l border-border pl-5 sm:pl-6" : ""}
+                className={`flex items-center gap-2.5 ${
+                  i > 0 ? "sm:border-l sm:border-border sm:pl-6" : ""
+                }`}
               >
-                <p className="text-xl font-extrabold text-foreground sm:text-2xl">
-                  {s.value}
-                </p>
-                <p className="text-xs text-muted sm:text-sm">{s.label}</p>
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-700">
+                  <CheckIcon className="h-4 w-4" />
+                </span>
+                <div>
+                  <p className="text-sm font-extrabold leading-tight text-foreground">
+                    {s.value}
+                  </p>
+                  <p className="text-xs leading-tight text-muted">{s.label}</p>
+                </div>
               </div>
             ))}
           </div>

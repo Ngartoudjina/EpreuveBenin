@@ -11,10 +11,20 @@ const SELECT_CLASS =
   "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none";
 
 /** Recherche et filtrage instantanés côté client (F-03, F-04). */
-export function SearchExplorer({ initialQuery = "" }: { initialQuery?: string }) {
+export function SearchExplorer({
+  initialQuery = "",
+  initialExam = "",
+}: {
+  initialQuery?: string;
+  initialExam?: "" | "bepc" | "bac";
+}) {
   const [docs, setDocs] = useState<SearchDoc[] | null>(null);
   const [failed, setFailed] = useState(false);
-  const [filters, setFilters] = useState({ ...emptyFilters, query: initialQuery });
+  const [filters, setFilters] = useState({
+    ...emptyFilters,
+    query: initialQuery,
+    examCode: initialExam,
+  });
 
   useEffect(() => {
     let active = true;

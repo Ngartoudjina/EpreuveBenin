@@ -208,3 +208,91 @@ export function InstagramIcon({ className }: IconProps) {
     </svg>
   );
 }
+
+export function BookOpenIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M12 6.5C10.5 4.9 8.4 4 6 4c-1.1 0-2.1.2-3 .5V19c.9-.3 1.9-.5 3-.5 2.4 0 4.5.9 6 2.5 1.5-1.6 3.6-2.5 6-2.5 1.1 0 2.1.2 3 .5V4.5c-.9-.3-1.9-.5-3-.5-2.4 0-4.5.9-6 2.5Z" />
+      <path d="M12 6.5V21" />
+    </svg>
+  );
+}
+
+export function TrophyIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M8 21h8" />
+      <path d="M12 17v4" />
+      <path d="M7 4h10v6a5 5 0 0 1-10 0V4Z" />
+      <path d="M7 6H4a1 1 0 0 0-1 1c0 2.2 1.8 4 4 4" />
+      <path d="M17 6h3a1 1 0 0 1 1 1c0 2.2-1.8 4-4 4" />
+    </svg>
+  );
+}
+
+export function BuildingIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M3 21h18" />
+      <path d="M12 3 4 8v13" />
+      <path d="M12 3l8 5v13" />
+      <path d="M9 12h.01M15 12h.01M9 16h.01M15 16h.01" />
+    </svg>
+  );
+}
+
+export function UsersIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <circle cx="9" cy="8" r="3.5" />
+      <path d="M2.5 20c.7-3 3.3-5 6.5-5s5.8 2 6.5 5" />
+      <path d="M16 5.1a3.5 3.5 0 0 1 0 5.8" />
+      <path d="M18.5 15.4c1.6.8 2.7 2.1 3 4.1" />
+    </svg>
+  );
+}
+
+export function GridIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <rect x="3.5" y="3.5" width="7" height="7" rx="1.5" />
+      <rect x="13.5" y="3.5" width="7" height="7" rx="1.5" />
+      <rect x="3.5" y="13.5" width="7" height="7" rx="1.5" />
+      <rect x="13.5" y="13.5" width="7" height="7" rx="1.5" />
+    </svg>
+  );
+}
+
+export function RefreshIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M20 11a8 8 0 0 0-14.9-3" />
+      <path d="M5 3v5h5" />
+      <path d="M4 13a8 8 0 0 0 14.9 3" />
+      <path d="M19 21v-5h-5" />
+    </svg>
+  );
+}
+
+export function ShieldCheckIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M12 3 5 6v5c0 4.5 3 8.2 7 10 4-1.8 7-5.5 7-10V6l-7-3Z" />
+      <path d="m9 12 2 2 4-4" />
+    </svg>
+  );
+}
+
+export function StarIcon({ className }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+      focusable="false"
+      className={className}
+    >
+      <path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5-4.8-4.6 6.6-.9 2.9-6Z" />
+    </svg>
+  );
+}

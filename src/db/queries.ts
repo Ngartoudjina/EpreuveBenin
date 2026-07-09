@@ -209,6 +209,61 @@ export const getSearchIndex = cache(async (): Promise<SearchDoc[]> => {
   });
 });
 
+/** Épreuves récentes pour la page d'accueil (cartes « épreuves populaires »). */
+export const getHomePapers = cache(async (limit = 6) => {
+  const papers = await db.query.examPapers.findMany({
+    with: {
+      exam: true,
+      series: true,
+      subject: true,
+      session: true,
+      documents: { columns: { type: true, downloadCount: true } },
+    },
+    orderBy: (p, { desc }) => [desc(p.createdAt)],
+    limit,
+  });
+
+  return papers.map((p) => {
+    const base =
+      p.exam.code === "bac" && p.series ? `/bac/${p.series.slug}` : "/bepc";
+    return {
+      id: p.id,
+      href: `${base}/${p.subject.slug}/${p.session.year}`,
+      examLabel: p.exam.label,
+      seriesCode: p.series?.code ?? null,
+      subjectLabel: p.subject.label,
+      year: p.session.year,
+      downloads: p.documents.reduce((n, d) => n + d.downloadCount, 0),
+      hasCorrige: p.documents.some((d) => d.type === "corrige"),
+    };
+  });
+});
+
+export type HomePaper = Awaited<ReturnType<typeof getHomePapers>>[number];
+
+/** Statistiques publiques (bandeau chiffres de la page d'accueil). */
+export const getPublicStats = cache(async () => {
+  const n = sql<number>`count(*)::int`;
+  const [papers, docs, subj, dls] = await Promise.all([
+    db.select({ n }).from(examPapers),
+    db.select({ n }).from(documents),
+    db
+      .select({ n: sql<number>`count(distinct ${examPapers.subjectId})::int` })
+      .from(examPapers),
+    db
+      .select({
+        n: sql<number>`coalesce(sum(${documents.downloadCount}), 0)::int`,
+      })
+      .from(documents),
+  ]);
+  return {
+    papers: papers[0]?.n ?? 0,
+    documents: docs[0]?.n ?? 0,
+    subjects: subj[0]?.n ?? 0,
+    downloads: dls[0]?.n ?? 0,
+  };
+});
+
 /* ----------------------------- Back-office -------------------------------- */
 
 /** Tous les examens (pour les formulaires d'administration). */

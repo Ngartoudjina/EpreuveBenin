@@ -13,6 +13,9 @@ import { revalidatePath } from "next/cache";
 
 /** À appeler après toute mutation d'épreuve ou de document. */
 export function revalidatePublicCatalog(): void {
+  // Accueil : épreuves récentes et chiffres clés.
+  revalidatePath("/");
+
   // Catalogue BEPC : liste des matières, années, fiche épreuve.
   revalidatePath("/bepc");
   revalidatePath("/(public)/bepc/[matiere]", "page");

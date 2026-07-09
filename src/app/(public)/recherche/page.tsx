@@ -14,8 +14,10 @@ export const metadata: Metadata = {
 export default async function RecherchePage({
   searchParams,
 }: PageProps<"/recherche">) {
-  const { q } = await searchParams;
+  const { q, examen } = await searchParams;
   const initialQuery = typeof q === "string" ? q : "";
+  const initialExam =
+    examen === "bepc" || examen === "bac" ? examen : "";
 
   return (
     <Container className="py-12 sm:py-16">
@@ -31,7 +33,7 @@ export default async function RecherchePage({
           corrigé. Les résultats s&apos;affichent instantanément.
         </p>
         <div data-reveal className="mt-8">
-          <SearchExplorer initialQuery={initialQuery} />
+          <SearchExplorer initialQuery={initialQuery} initialExam={initialExam} />
         </div>
       </Reveal>
     </Container>
