@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { logAction } from "@/lib/admin/audit";
 import { addDocument, deleteDocument } from "@/lib/admin/papers";
+import { revalidatePublicCatalog } from "@/lib/admin/revalidate";
 
 type State = { error?: string } | undefined;
 
@@ -43,6 +44,7 @@ export async function addDocumentAction(
   }
 
   revalidatePath(`/admin/epreuves/${paperId}`);
+  revalidatePublicCatalog();
   return undefined;
 }
 
@@ -62,5 +64,6 @@ export async function deleteDocumentAction(
   }
 
   revalidatePath(`/admin/epreuves/${paperId}`);
+  revalidatePublicCatalog();
   return undefined;
 }

@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { logAction } from "@/lib/admin/audit";
 import { importPapers, type ImportReport } from "@/lib/admin/import";
+import { revalidatePublicCatalog } from "@/lib/admin/revalidate";
 
 export type ImportState = { report?: ImportReport; error?: string } | undefined;
 
@@ -39,6 +40,7 @@ export async function importAction(
       await logAction("import", "épreuves", `${report.created} créée(s)`);
       revalidatePath("/admin/epreuves");
       revalidatePath("/admin");
+      revalidatePublicCatalog();
     }
     return { report };
   } catch (error) {

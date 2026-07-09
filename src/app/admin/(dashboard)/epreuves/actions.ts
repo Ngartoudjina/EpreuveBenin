@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { logAction } from "@/lib/admin/audit";
 import { createExamPaper, deleteExamPaper } from "@/lib/admin/papers";
+import { revalidatePublicCatalog } from "@/lib/admin/revalidate";
 
 export type CreatePaperState = { error?: string } | undefined;
 
@@ -22,6 +23,7 @@ export async function deletePaperAction(formData: FormData) {
     const title = await deleteExamPaper(id);
     await logAction("delete", "épreuve", title);
     revalidatePath("/admin/epreuves");
+    revalidatePublicCatalog();
   }
 }
 
@@ -66,5 +68,6 @@ export async function createPaperAction(
   }
 
   revalidatePath("/admin/epreuves");
+  revalidatePublicCatalog();
   redirect("/admin/epreuves");
 }
