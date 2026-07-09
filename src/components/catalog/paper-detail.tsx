@@ -4,6 +4,7 @@ import { DocumentCard } from "@/components/catalog/document-card";
 import { JsonLd } from "@/components/seo/json-ld";
 import type { PaperWithRelations } from "@/db/queries";
 import { breadcrumbJsonLd, paperJsonLd } from "@/lib/seo";
+import { getStorage } from "@/lib/storage";
 
 /** Fiche épreuve (F-05) : métadonnées + documents (aperçu + téléchargement). */
 export function PaperDetail({
@@ -76,7 +77,7 @@ export function PaperDetail({
             key={doc.id}
             id={doc.id}
             type={doc.type}
-            url={doc.url}
+            url={getStorage().deliveryUrl({ key: doc.storageKey, url: doc.url })}
             fileSizeBytes={doc.fileSizeBytes}
             pageCount={doc.pageCount}
           />

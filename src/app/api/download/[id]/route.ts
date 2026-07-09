@@ -8,6 +8,7 @@ import {
   EMAIL_VERIFICATION_ENABLED,
   isEmailVerified,
 } from "@/lib/auth/verification";
+import { getStorage } from "@/lib/storage";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,7 @@ export async function GET(
 
   const doc = await db.query.documents.findFirst({
     where: eq(documents.id, id),
+    with: { examPaper: true },
   });
   if (!doc) {
     return new NextResponse("Document introuvable.", { status: 404 });
@@ -50,5 +52,11 @@ export async function GET(
     .set({ downloadCount: sql`${documents.downloadCount} + 1` })
     .where(eq(documents.id, id));
 
-  return NextResponse.redirect(new URL(doc.url, req.url));
+  // URL de diffusion résolue par le fournisseur de stockage (signée chez
+  // Cloudinary, sinon la diffusion des PDF est bloquée par défaut).
+  const target = getStorage().deliveryUrl(
+    { key: doc.storageKey, url: doc.url },
+    { attachment: `${doc.examPaper.slug}-${doc.type}` },
+  );
+  return NextResponse.redirect(new URL(target, req.url));
 }

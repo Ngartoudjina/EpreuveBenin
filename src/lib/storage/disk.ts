@@ -29,4 +29,9 @@ export const diskStorage: StorageProvider = {
     // Ignore les fichiers absents (ex. données de démonstration).
     await unlink(join(UPLOAD_DIR, key)).catch(() => undefined);
   },
+
+  deliveryUrl(file) {
+    // Fichiers servis statiquement depuis public/ : l'URL stockée suffit.
+    return file.url;
+  },
 };

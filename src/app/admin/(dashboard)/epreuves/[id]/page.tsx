@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import { getPaperForAdmin } from "@/db/queries";
 import { formatFileSize, formatNumber } from "@/lib/format";
+import { getStorage } from "@/lib/storage";
 
 import { AddDocumentForm, DeleteDocumentButton } from "./documents";
 
@@ -103,7 +104,10 @@ export default async function AdminPaperPage({
                     </td>
                     <td className="px-4 py-3">
                       <a
-                        href={d.url}
+                        href={getStorage().deliveryUrl({
+                          key: d.storageKey,
+                          url: d.url,
+                        })}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="font-medium text-brand-700 hover:text-brand-800"

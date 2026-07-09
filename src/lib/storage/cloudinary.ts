@@ -59,4 +59,23 @@ export const cloudinaryStorage: StorageProvider = {
     configure();
     await cloudinary.uploader.destroy(key, { resource_type: "image" });
   },
+
+  deliveryUrl(file, opts) {
+    // Documents non hébergés chez Cloudinary (démo du seed, anciens uploads
+    // disque) : on sert l'URL stockée telle quelle.
+    if (!file.url.includes("res.cloudinary.com")) return file.url;
+
+    configure();
+    // URL signée obligatoire : Cloudinary bloque par défaut la diffusion des
+    // PDF via URL non signée (réglage « PDF and ZIP files delivery »).
+    // `fl_attachment` force le téléchargement sous un nom lisible.
+    return cloudinary.url(file.key, {
+      resource_type: "image",
+      type: "upload",
+      format: "pdf",
+      secure: true,
+      sign_url: true,
+      flags: opts?.attachment ? `attachment:${opts.attachment}` : undefined,
+    });
+  },
 };
